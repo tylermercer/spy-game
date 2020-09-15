@@ -1,5 +1,4 @@
 const test = () => Logger.log(doGet({parameters:{Body:['capture awesomely flying cheese'], From: ['1234567890'], To: ['45045']}}));
-const test2 = () => Logger.log(SpreadsheetApp.getActiveSpreadsheet().getSheetByName('db').getRange(4, 2).getValue() === 'Foo Bar');
 
 const clearMutex = () => releaseMutex(SpreadsheetApp.getActive().getSheetByName('db'));
 
@@ -112,6 +111,10 @@ function recordCapture(db, secret, phoneNumber, gameIsStarted) {
     return noResponse();
   }
 
+  if (user[COL_ELIMINATED_BY]) {
+    return eliminatedMessage(user);
+  }
+
   if (!gameIsStarted) return twimlSmsResponse('Please wait for a text announcing the start of the game.');
 
   if (!SECRET_REGEX.test(secret)) {
@@ -181,4 +184,14 @@ function noResponse() {
 
 function pleaseRetryResponse() {
   return twimlSmsResponse('The server is under load, please wait a few minutes and retry.');
+}
+
+function eliminatedMessage(user) {
+  twimlSmsResponse(
+    'Unfortunately, you were elminated by ' +
+    user[COL_ELIMINATED_BY] +
+    ' on ' +
+    user[COL_ELIMINATED_DATE].replace(',', ' at') +
+    ' and are out of the game.\nThanks for playing!'
+  );
 }
