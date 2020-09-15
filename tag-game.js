@@ -1,4 +1,9 @@
-const test = () => Logger.log(doGet({parameters:{Body:['capture awesomely flying cheese'], From: ['1234567890'], To: ['45045']}}));
+TWILIO_SID = "#TwilioSid#";
+TWILIO_AUTH = "#TwilioAuthToken";
+
+const test = () => Logger.log(doGet({parameters:{Body:['capture awesomely flying cheese'], From: ['9087654321'], To: ['45045']}}));
+
+const testText = () => sendText('+17192840385', 'This is another test');
 
 const clearMutex = () => releaseMutex(SpreadsheetApp.getActive().getSheetByName('db'));
 
@@ -207,4 +212,18 @@ function eliminatedMessage(user) {
     user[COL_ELIMINATED_DATE].replace(',', ' at') +
     ' and are out of the game.\nThanks for playing!'
   );
+}
+
+function sendText(to, body) {
+  UrlFetchApp.fetch('https://api.twilio.com/2010-04-01/Accounts/' + TWILIO_SID + '/Messages', {
+    method: 'post',
+    payload: {
+      'Body':body,
+      'From':'+12156933023',
+      'To':to
+    },
+    headers : {
+     'Authorization' : 'Basic ' + Utilities.base64Encode(TWILIO_SID + ':' + TWILIO_AUTH)//.replace(/\//g,'_').replace(/\+/g,'-')
+    }
+  })
 }
