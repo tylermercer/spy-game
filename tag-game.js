@@ -1,6 +1,18 @@
-const test = () => doGet({parameters:{Body:['JOIN Foo Bar'], From: ['1234567890']}});
+const test = () => Logger.log(doGet({parameters:{Body:['capture awesomely flying cheese'], From: ['1234567890'], To: ['45045']}}));
+const test2 = () => Logger.log(SpreadsheetApp.getActiveSpreadsheet().getSheetByName('db').getRange(4, 2).getValue() === 'Foo Bar');
 
-const [COL_PHONE, COL_NAME, COL_JOIN_DATE, COL_SECRET, COL_TARGET] = [0,1,2,3,4];
+const clearMutex = () => releaseMutex(SpreadsheetApp.getActive().getSheetByName('db'));
+
+const [
+  COL_PHONE,
+  COL_NAME,
+  COL_JOIN_DATE,
+  COL_SECRET,
+  COL_TARGET,
+  COL_ELIMINATED_BY,
+  COL_ELIMINATED_DATE,
+  COL_NOTIFIED
+] = [0,1,2,3,4,5,6,7];
 
 const CMD_JOIN = ['JOIN', 'REGISTER'];
 const CMD_CAPTURE = ['CAPTURE', 'ELIMINATE']; 
@@ -20,20 +32,23 @@ function doGet(e) {
   logRequest(ss, e);
   const [cmd, body, from] = parseMessage(e.parameters);
   const db = ss.getSheetByName('db');
+  const gameIsStarted = ss.getSheetByName('settings').getDataRange().getValues()[1][1];
 
   const mutex = tryGetMutex(db);
   if (!mutex) return pleaseRetryResponse();
   
   let response;
+
   if (CMD_JOIN.indexOf(cmd) >= 0) {
-     response = registerPlayer(db, body, from);
+     response = registerPlayer(db, body, from, gameIsStarted);
   }
   else if (CMD_CAPTURE.indexOf(cmd) >= 0) {
-    response = recordCapture(db, body, from);
+    response = recordCapture(db, body, from, gameIsStarted);
   }
   else {
     response = help();
   }
+
   releaseMutex(db);
   return response;
 }
@@ -47,10 +62,9 @@ function logRequest(ss, e) {
 function parseMessage(params) {
   const text = params['Body'][0];
   const from = params['From'][0];
-  const to = params['To'][0];
   const command = text.split(' ', 1)[0].toUpperCase();
   const body = text.substring(command.length).trim();
-  return [command, body, from, to];
+  return [command, body, from];
 }
 
 function tryGetMutex(db) {
@@ -65,17 +79,20 @@ function tryGetMutex(db) {
 
 function releaseMutex(db) {
   db.getDeveloperMetadata().forEach(md => md.remove());
+  Logger.log(db.getDeveloperMetadata());
 }
 
 //"JOIN Full Name"
-function registerPlayer(db, name, phoneNumber) {
+function registerPlayer(db, name, phoneNumber, gameIsStarted) {
   if (!NAME_REGEX.test(name)) {
     return twimlSmsResponse('Please enter your full name.');
   }
+
+  if (gameIsStarted) return twimlSmsResponse('Sorry, the game has already started.');
   
   const data = getData(db);
   
-  const existing = findWhere(data, r => r[COL_PHONE] === '`' + phoneNumber);
+  const [existing] = findWhere(data, r => r[COL_PHONE] === '`' + phoneNumber);
   
   if (existing != null) {
     return twimlSmsResponse('You have already joined as ' + existing[COL_NAME] + '. Please wait for a text announcing the start of the game.');
@@ -87,7 +104,7 @@ function registerPlayer(db, name, phoneNumber) {
 }
 
 //"CAPTURE Secret"
-function recordCapture(db, secret, phoneNumber) {
+function recordCapture(db, secret, phoneNumber, gameIsStarted) {
   const data = getData(db);
   const [user, userIndex] = findUser(data, phoneNumber);
 
@@ -95,7 +112,7 @@ function recordCapture(db, secret, phoneNumber) {
     return noResponse();
   }
 
-  if (!gameIsStarted(ss)) return gameNotStartedResponse();
+  if (!gameIsStarted) return twimlSmsResponse('Please wait for a text announcing the start of the game.');
 
   if (!SECRET_REGEX.test(secret)) {
     return twimlSmsResponse('The secret phrase should be exactly three words.')
@@ -107,13 +124,30 @@ function recordCapture(db, secret, phoneNumber) {
     return twimlSmsResponse('Incorrect secret phrase. Please check with your target and try again.');
   }
 
-  const newTarget = findWhere(data, r => r[COL_NAME] === target[COL_TARGET]);
+  const [newTarget] = findWhere(data, r => r[COL_NAME] === target[COL_TARGET]);
 
-  const db = ss.getSheetByName('db');
+  //getRange uses 1-indexing....
 
-
-
-  return
+  db.getRange(+targetIndex + 1, +COL_ELIMINATED_BY + 1, 1, 2).setValues([[user[COL_NAME], now()]]);
+  if (newTarget[COL_NAME] === user[COL_NAME]) {
+    const emailBody = 'After an intense battle, ' +
+      user[COL_NAME] +
+      ' defeated ' +
+      target[COL_NAME] +
+      ' to claim the title of World\'s Greatest Secret Agent!'
+    MailApp.sendEmail('tyleralanmercer@gmail.com', user[COL_NAME] + ' wins!', emailBody, {
+      htmlBody: '<p>' + emailBody + '</p>'
+    })
+    return twimlSmsResponse(
+      'Fantastic work, agent! You have successfully eliminated your adversary before they ' +
+      'eliminated you. You have proven yourself to be the World\'s Greatest Secret Agent. ' +
+      'Congratulations!\n\nThanks for playing!'
+    )
+  }
+  else {
+    db.getRange(+userIndex + 1, +COL_TARGET + 1).setValue(newTarget[COL_NAME]);
+    return twimlSmsResponse('Excellent work, agent. Your next target is ' + newTarget[COL_NAME] + '.');
+  }
 }
 
 function findWhere(data, predicate) {
@@ -126,7 +160,7 @@ function findWhere(data, predicate) {
 }
 
 function findUser(data, phoneNumber) {
-  return findRowWhere(data, r => r[COL_PHONE] === '`' + phoneNumber);
+  return findWhere(data, r => r[COL_PHONE] === '`' + phoneNumber);
 }
 
 function twimlSmsResponse(str) {
@@ -143,10 +177,6 @@ function noResponse() {
   return ContentService
     .createTextOutput('')
     .setMimeType(ContentService.MimeType.XML);
-}
-
-function gameNotStartedResponse() {
-  return twimlSmsResponse('The game has not yet started! Please wait for a text announcing the start of the game.');
 }
 
 function pleaseRetryResponse() {
