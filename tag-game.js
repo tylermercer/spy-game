@@ -16,12 +16,22 @@ const [
 const CMD_JOIN = ['JOIN', 'REGISTER'];
 const CMD_CAPTURE = ['CAPTURE', 'ELIMINATE']; 
 
+const GROUP_NAME = 'Provo 191st YSA';
+
+const WELCOME = 'Welcome to the ' + GROUP_NAME + ' Super Secret Spy Network';
+
 const NAME_REGEX = /^[A-Za-z]+\s+[A-Za-z]+$/;
 const SECRET_REGEX = /^[A-Za-z]+\s+[A-Za-z]+\s+[A-Za-z]+$/;
 
 const now = () => (new Date).toLocaleString();
 
-const help = () => twimlSmsResponse('This is help text');
+const help = () => twimlSmsResponse(
+  WELCOME +
+  '\n\n' +
+  'Valid commands:\n' +
+  'JOIN <your full name> - register for a game\n' +
+  'CAPTURE <your target\'s secret phrase> - eliminate your target'
+);
 
 const getData = (db) => db.getDataRange().getValues();
 
@@ -78,7 +88,6 @@ function tryGetMutex(db) {
 
 function releaseMutex(db) {
   db.getDeveloperMetadata().forEach(md => md.remove());
-  Logger.log(db.getDeveloperMetadata());
 }
 
 //"JOIN Full Name"
@@ -94,11 +103,15 @@ function registerPlayer(db, name, phoneNumber, gameIsStarted) {
   const [existing] = findWhere(data, r => r[COL_PHONE] === '`' + phoneNumber);
   
   if (existing != null) {
-    return twimlSmsResponse('You have already joined as ' + existing[COL_NAME] + '. Please wait for a text announcing the start of the game.');
+    return twimlSmsResponse(
+      'You have already joined as ' +
+      existing[COL_NAME] +
+      '. Please wait for a text announcing the start of the game.'
+    );
   }
   else {
     db.appendRow(['`' + phoneNumber, name, now()]);
-    return twimlSmsResponse('Welcome, ' + name + '. You have successfully joined the game.');
+    return twimlSmsResponse('Hello, ' + name + '.\n\n' + WELCOME + '\n\n(You have successfully joined the game.)');
   }
 }
 
