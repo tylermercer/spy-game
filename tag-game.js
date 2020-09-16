@@ -212,9 +212,10 @@ function announceWinner(user, target) {
 }
 
 function findWhere(data, predicate) {
-  for (let r in data) {
-    if (predicate(data[r])) {
-      return [data[r], r];
+  const rows = data.slice(1);
+  for (let r in rows) {
+    if (predicate(rows[r])) {
+      return [rows[r], +r+1];
     }
   }
   return [null, null];
