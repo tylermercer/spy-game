@@ -19,7 +19,7 @@ export async function getStats(): Promise<Stats> {
       if (results != null) {
         resolve(results);
       }
-    }, 8000);
+    }, 8500);
 
     try {
       Papa.parse(url, {

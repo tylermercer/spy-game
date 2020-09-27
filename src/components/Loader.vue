@@ -1,5 +1,5 @@
 <template>
-  <h1>{{loadingPhrase}}...</h1>
+  <h1><template v-if="loadingPhrase !== ''">{{loadingPhrase}}...</template></h1>
 </template>
 
 <script lang="ts">
@@ -25,8 +25,10 @@ const loadingPhrases = [
 
 @Component<Loader>({
   created() {
-    this.loadingPhrase = this.getNextPhrase();
-    setInterval(() => this.loadingPhrase = this.getNextPhrase(), 3000)
+    setTimeout(() => {
+      this.loadingPhrase = this.getNextPhrase();
+      setInterval(() => this.loadingPhrase = this.getNextPhrase(), 2500)
+    }, 1000);
   }
 })
 export default class Loader extends Vue {
