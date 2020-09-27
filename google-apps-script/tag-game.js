@@ -213,7 +213,7 @@ function announceWinner(user, target) {
 
 function findWhere(data, predicate) {
   const rows = data.slice(1);
-  for (let r in rows) {
+  for (const r in rows) {
     if (predicate(rows[r])) {
       return [rows[r], +r+1];
     }
