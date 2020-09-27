@@ -116,6 +116,11 @@ nav button {
   margin-left: auto;
   display: block;
 }
+@media screen and (max-width: 600px) {
+  nav button {
+    padding: 20px;
+  }
+}
 #app .content {
   display: flex;
   flex-direction: column;
