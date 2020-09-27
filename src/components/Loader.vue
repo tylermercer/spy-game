@@ -11,7 +11,8 @@ const loadingPhrases = [
   "Verifying agent identity",
   "Scanning for hostiles",
   "Establishing Enigma cipher",
-  "Authenticating carrier pigeons"
+  "Authenticating carrier pigeons",
+  "Calibrating fluxturnions"
 ]
 
 @Component<Loader>({

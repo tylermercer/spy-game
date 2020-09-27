@@ -77,6 +77,7 @@ a {
 * {
   color: var(--color-text);
   background-color: black;
+  font-family: 'Overpass Mono', monospace;
 }
 .flickering * {
   animation-duration: 0.05s;
@@ -85,7 +86,6 @@ a {
   animation-direction: alternate;
 }
 #app {
-  font-family: 'Overpass Mono', monospace;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-align: center;

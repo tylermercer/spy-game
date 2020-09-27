@@ -34,6 +34,7 @@ table {
   border-collapse: collapse;
 }
 .container {
+  font-size: 20px;
   display: flex;
   flex-direction: column;
   align-items: center;
