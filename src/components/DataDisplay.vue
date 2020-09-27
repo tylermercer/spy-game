@@ -29,10 +29,10 @@ th, td {
   border: 1px solid var(--color-text);
 }
 th {
-  font-size: 4.5vmin;
+  font-size: 6vmin;
 }
 td {
-  font-size: 2.5vmin;
+  font-size: 3.5vmin;
 }
 table {
   border-collapse: collapse;
