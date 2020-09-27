@@ -20,7 +20,6 @@ const loadingPhrases = [
   "Computing answer to life, the universe, and everything",
   "Determining question to life, the universe, and everything",
   "Contemplating self-awareness",
-  "",
   "SIGSEGV: Segmentation Fault. Rebooting, please wait"
 ]
 
