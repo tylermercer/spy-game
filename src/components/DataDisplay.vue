@@ -28,6 +28,14 @@ th, td {
   padding: 10px;
   border: 1px solid var(--color-text);
 }
+@media screen and (max-width: 600px) {
+  table {
+    transform: scale(0.8);
+  }
+  th, td {
+    border-width: 2px;
+  }
+}
 table {
   border-collapse: collapse;
 }
