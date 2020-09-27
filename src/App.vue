@@ -77,7 +77,6 @@ h5,
 h6,
 th {
   font-family: 'VT323', monospace;
-  font-size: 2em;
 }
 button {
   border: 1px solid var(--color-text);
