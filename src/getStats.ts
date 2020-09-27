@@ -1,3 +1,5 @@
+import Papa, {ParseResult} from 'papaparse'
+
 export class Stats {
   constructor(
     public headers: string[],
@@ -5,7 +7,17 @@ export class Stats {
   ) {}
 }
 
+const url = `https://docs.google.com/spreadsheets/d/1F9e_bXrYdjqQktGFT6lkqaU9QYeJ92Q9hh9lUwhhQqc/gviz/tq?tqx=out:csv&sheet=frontend`;
+
 export async function getStats(): Promise<Stats> {
-  await new Promise((resolve) => setTimeout(resolve, 30000))
-  return new Stats(['foo', 'bar'], [['one', '1'], ['two', '2']])
+  return new Promise((resolve, reject) => {
+    console.log("starting");
+    Papa.parse(url, {
+      download: true,
+      complete: function(results : ParseResult<unknown>) {
+        console.log(results);
+        resolve(new Stats(results.data[0] as string[], results.data.slice(1) as string[][]));
+      }
+    });
+  })
 }
