@@ -1,7 +1,5 @@
 <template>
-  <div class="container">
-    <p>{{loadingPhrase}}...</p>
-  </div>
+  <h1>{{loadingPhrase}}...</h1>
 </template>
 
 <script lang="ts">
@@ -10,9 +8,20 @@ import { Component, Prop, Vue } from 'vue-property-decorator';
 const loadingPhrases = [
   "Verifying agent identity",
   "Scanning for hostiles",
-  "Establishing Enigma cipher",
+  "Establishing encrypted connection",
+  "Calibrating fluxturnions",
   "Authenticating carrier pigeons",
-  "Calibrating fluxturnions"
+  "Decrypting Enigma cipher",
+  "Tweeting cryptocurrency links",
+  "Deflecting asteroids",
+  "Passing Turing test",
+  "Manufacturing paperclips",
+  "Exploring deep space",
+  "Computing answer to life, the universe, and everything",
+  "Determining question to life, the universe, and everything",
+  "Contemplating self-awareness",
+  "",
+  "SIGSEGV: Segmentation Fault. Rebooting, please wait"
 ]
 
 @Component<Loader>({
@@ -36,12 +45,3 @@ export default class Loader extends Vue {
   }
 }
 </script>
-
-<style scoped>
-.container {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-}
-</style>

@@ -11,13 +11,35 @@ const url = `https://docs.google.com/spreadsheets/d/1F9e_bXrYdjqQktGFT6lkqaU9QYe
 
 export async function getStats(): Promise<Stats> {
   return new Promise((resolve, reject) => {
-    console.log("starting");
-    Papa.parse(url, {
-      download: true,
-      complete: function(results : ParseResult<unknown>) {
-        console.log(results);
-        resolve(new Stats(results.data[0] as string[], results.data.slice(1) as string[][]));
+    let results: Stats | null = null;
+    let done = false;
+
+    setTimeout(() => {
+      done = true;
+      if (results != null) {
+        resolve(results);
       }
-    });
-  })
+    }, 8000);
+
+    try {
+      Papa.parse(url, {
+        download: true,
+        worker: true,
+        complete: function(res : ParseResult<unknown>) {
+          if (!res){
+            reject(new Error("Could not retrieve data. Please check your network connection."))
+          }
+          else {
+            results = new Stats(res.data[0] as string[], res.data.slice(1) as string[][])
+            if (done) {
+              resolve(results);
+            }
+          }
+        }
+      });
+    }
+    catch (e) {
+      reject(e);
+    }
+  });
 }

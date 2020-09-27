@@ -1,18 +1,16 @@
 <template>
-  <div class="container">
-    <table>
-      <thead>
-        <tr>
-          <th v-for="col in stats.headers" :key="col">{{col}}</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr v-for="row in stats.data" :key="JSON.stringify(row)">
-          <td v-for="(col, i) in stats.headers" :key="row + col">{{row[i]}}</td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
+  <table>
+    <thead>
+      <tr>
+        <th v-for="col in stats.headers" :key="col">{{col}}</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr v-for="row in stats.data" :key="JSON.stringify(row)">
+        <td v-for="(col, i) in stats.headers" :key="row + col">{{row[i]}}</td>
+      </tr>
+    </tbody>
+  </table>
 </template>
 
 <script lang="ts">
@@ -32,12 +30,5 @@ th, td {
 }
 table {
   border-collapse: collapse;
-}
-.container {
-  font-size: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 </style>

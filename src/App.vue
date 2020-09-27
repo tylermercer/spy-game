@@ -3,8 +3,11 @@
     <nav>
       <button v-if="!prefersReducedMotion" @click="() => flickering = !flickering">Toggle CRT flicker</button>
     </nav>
-    <Loader class="content" v-if="stats == null"/>
-    <DataDisplay class="content" :stats="stats" v-else />
+    <main class="content">
+      <Loader v-if="stats == null && errorMessage === ''"/>
+      <p v-else-if="errorMessage !== ''">{{errorMessage}}</p>
+      <DataDisplay :stats="stats" v-else />
+    </main>
   </div>
 </template>
 
@@ -37,6 +40,7 @@ import { getStats, Stats } from './getStats'
 export default class App extends Vue {
 
   private stats: Stats | null = null
+  private errorMessage: string = ''
 
   private prefersReducedMotion: boolean = false
   private flickering: boolean = true
@@ -48,7 +52,12 @@ export default class App extends Vue {
     }
   }
   public async getGameStats() {
-    this.stats = await getStats();
+    try {
+      this.stats = await getStats();
+    }
+    catch (e) {
+      this.errorMessage = e.message;
+    }
   }
 }
 </script>
@@ -65,8 +74,10 @@ h2,
 h3,
 h4,
 h5,
-h6 {
+h6,
+th {
   font-family: 'VT323', monospace;
+  font-size: 2em;
 }
 button {
   border: 1px solid var(--color-text);
@@ -105,6 +116,10 @@ nav button {
   display: block;
 }
 #app .content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
   flex-grow: 1;
 }
 @keyframes textflicker {
